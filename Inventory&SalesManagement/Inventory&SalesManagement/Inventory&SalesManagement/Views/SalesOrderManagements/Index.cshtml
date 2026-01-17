@@ -1,0 +1,129 @@
+﻿@model IEnumerable<Inventory_SalesManagement.Models.Entities.SalesOrderManagement>
+
+@{
+    ViewData["Title"] = "Sales Report";
+
+    // Group the flat list of sales into Invoices
+    var groupedSales = Model
+        .GroupBy(s => s.OrderNumber)
+        .OrderByDescending(g => g.First().OrderDate);
+
+    // Calculate Grand Total Revenue
+    decimal grandTotalRevenue = Model.Sum(i => i.TotalAmount);
+}
+
+<div class="row mb-4">
+    <div class="col-md-12">
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card-modern p-3 d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px; height:50px;">
+                        <i class="fa-solid fa-dollar-sign fa-xl"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted fw-bold">TOTAL REVENUE</small>
+                        <h4 class="mb-0 fw-bold text-dark">@grandTotalRevenue.ToString("C0")</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-modern p-3 d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px; height:50px;">
+                        <i class="fa-solid fa-file-invoice fa-xl"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted fw-bold">TOTAL INVOICES</small>
+                        <h4 class="mb-0 fw-bold text-dark">@groupedSales.Count()</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-modern">
+            <div class="card-header-modern d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-layer-group me-2 text-primary"></i>Sales History</h5>
+                    <small class="text-muted">Click on any row to view products</small>
+                </div>
+                <div>
+                    <a asp-action="ExportToExcel" class="btn btn-outline-success btn-sm me-2">
+                        <i class="fa-solid fa-file-excel me-1"></i> Export
+                    </a>
+                    <a asp-action="Create" class="btn btn-primary btn-sm shadow-sm">
+                        <i class="fa-solid fa-cart-plus me-2"></i> New Sale
+                    </a>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="border-collapse: separate; border-spacing: 0;">
+                    <thead class="bg-light text-secondary text-uppercase small fw-bold">
+                        <tr>
+                            <th class="p-3">Status</th>
+                            <th>Invoice #</th>
+                            <th>Date</th>
+                            <th>Sold By</th>
+                            <th class="text-center">Items</th>
+                            <th class="text-end p-3">Invoice Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var invoiceGroup in groupedSales)
+                        {
+                            // Calculate totals for this specific Invoice Group
+                            var firstItem = invoiceGroup.First();
+                            var invoiceTotal = invoiceGroup.Sum(x => x.TotalAmount);
+                            var itemCount = invoiceGroup.Sum(x => x.Quantity);
+                            var uniqueId = "collapse-" + firstItem.OrderNumber.Replace("INV-", ""); // Safe ID for HTML
+
+                            <tr data-bs-toggle="collapse" data-bs-target="#@uniqueId" style="cursor: pointer; background: white;" title="Click to expand">
+                                <td class="p-3">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill">
+                                        <i class="fa-solid fa-plus-circle me-1"></i>View
+                                    </span>
+                                </td>
+                                <td class="fw-bold text-dark">@firstItem.OrderNumber</td>
+                                <td class="text-muted">@firstItem.OrderDate.ToString("MMM dd, yyyy")</td>
+                                <td><small class="text-muted"><i class="fa-solid fa-user me-1"></i> @firstItem.SalesPersonId</small></td>
+                                <td class="text-center"><span class="badge bg-light text-dark border">@itemCount items</span></td>
+                                <td class="text-end fw-bold text-success p-3">@invoiceTotal.ToString("C")</td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="6" class="p-0 border-0">
+                                    <div class="collapse bg-light shadow-inner" id="@uniqueId">
+                                        <div class="p-3 ps-5">
+                                            <h6 class="fw-bold text-muted small mb-2 text-uppercase">Products in Invoice #@firstItem.OrderNumber</h6>
+                                            <table class="table table-sm table-borderless mb-0 w-75">
+                                                <thead class="text-muted small border-bottom">
+                                                    <tr>
+                                                        <th>Product Name</th>
+                                                        <th class="text-end">Unit Price</th>
+                                                        <th class="text-center">Qty</th>
+                                                        <th class="text-end">Subtotal</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var product in invoiceGroup)
+                                                    {
+                                                        <tr>
+                                                            <td class="fw-bold text-dark">@product.Product?.Name</td>
+                                                            <td class="text-end text-muted">@product.UnitPrice.ToString("C")</td>
+                                                            <td class="text-center">@product.Quantity</td>
+                                                            <td class="text-end fw-bold">@product.TotalAmount.ToString("C")</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

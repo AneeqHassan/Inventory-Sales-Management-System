@@ -1,0 +1,103 @@
+/* SOFT UI THEME - INDIGO & SLATE */
+:root {
+    --primary: #6366f1; /* Indigo 500 */
+    --primary-hover: #4f46e5; /* Indigo 600 */
+    --secondary: #64748b; /* Slate 500 */
+    --background: #f8fafc; /* Slate 50 */
+    --surface: #ffffff;
+    --text-main: #1e293b; /* Slate 800 */
+    --text-muted: #94a3b8; /* Slate 400 */
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #10b981;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --radius: 12px;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- CARD STYLING --- */
+.card-modern {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(255,255,255,0.5);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-header-modern {
+    background: transparent;
+    padding: 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* --- FORM CONTROLS --- */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    padding: 0.625rem 1rem;
+    font-size: 0.95rem;
+    background-color: #f8fafc;
+    transition: all 0.2s;
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        background-color: white;
+    }
+
+/* --- BUTTONS --- */
+.btn {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+/* --- TABLE STYLING --- */
+.table-modern {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+    .table-modern thead th {
+        background-color: #f1f5f9;
+        color: var(--secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table-modern tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        color: var(--text-main);
+    }
+
+    .table-modern tbody tr:hover {
+        background-color: #f8fafc;
+    }

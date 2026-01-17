@@ -1,0 +1,75 @@
+﻿@model IEnumerable<Inventory_SalesManagement.Models.Entities.Product>
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card-modern">
+            <div class="card-header-modern d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-box me-2 text-primary"></i>Product Inventory</h5>
+                    <small class="text-muted">Manage stock levels and pricing</small>
+                </div>
+                <a asp-action="Create" class="btn btn-primary btn-sm shadow-sm">
+                    <i class="fa-solid fa-plus me-2"></i>New Product
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-modern align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Barcode</th>
+                            <th>Price</th>
+                            <th>Status / Stock</th>
+                            <th>Supplier</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold text-dark">@item.Name</td>
+                                <td class="text-muted"><i class="fa-solid fa-barcode me-1"></i> @item.Barcode</td>
+                                <td class="fw-bold text-primary">@item.Price.ToString("C")</td>
+
+                                <td>
+                                    @if (item.StockQuantity == 0)
+                                    {
+                                        <span class="badge bg-danger">OUT OF STOCK</span>
+                                    }
+                                    else if (item.StockQuantity < 5)
+                                    {
+                                        <span class="badge bg-warning text-dark">Low: @item.StockQuantity</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">@item.StockQuantity In Stock</span>
+                                    }
+                                </td>
+
+                                <td><i class="fa-solid fa-truck-field me-1 text-secondary"></i> @item.Supplier?.Name</td>
+
+                                <td class="text-end">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary border-0" title="Edit">
+                                        <i class="fa-solid fa-pen-to-square text-primary"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary border-0" title="Details">
+                                        <i class="fa-solid fa-circle-info text-info"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary border-0" title="Delete">
+                                        <i class="fa-solid fa-trash text-danger"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,56 @@
+﻿@model Inventory_SalesManagement.Models.Entities.SalesOrderManagement
+
+@{
+    ViewData["Title"] = "Sale Details";
+}
+
+<div class="container d-flex justify-content-center">
+    <div class="col-md-6">
+        <div class="card-modern mt-5">
+            <div class="card-header-modern text-center border-bottom pb-4">
+                <div class="mb-2 text-success">
+                    <i class="fa-solid fa-circle-check fa-3x"></i>
+                </div>
+                <h4 class="fw-bold">Sale Completed</h4>
+                <p class="text-muted mb-0">Invoice: <span class="fw-bold text-dark">@Model.OrderNumber</span></p>
+                <small class="text-muted">@Model.OrderDate.ToString("dd MMM yyyy, hh:mm tt")</small>
+            </div>
+
+            <div class="card-body p-0">
+                <table class="table table-modern mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="ps-4 text-muted">Product</td>
+                            <td class="pe-4 text-end fw-bold">@Model.Product?.Name</td>
+                        </tr>
+                        <tr>
+                            <td class="ps-4 text-muted">Quantity</td>
+                            <td class="pe-4 text-end fw-bold">@Model.Quantity</td>
+                        </tr>
+                        <tr>
+                            <td class="ps-4 text-muted">Unit Price</td>
+                            <td class="pe-4 text-end">@Model.UnitPrice.ToString("C")</td>
+                        </tr>
+                        <tr class="bg-light">
+                            <td class="ps-4 fw-bold text-primary">TOTAL PAID</td>
+                            <td class="pe-4 text-end fw-bold text-primary fs-5">@Model.TotalAmount.ToString("C")</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="p-4 bg-light rounded-bottom">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <small class="text-muted d-block">Sales Person</small>
+                            <span class="fw-bold text-dark"><i class="fa-solid fa-user-tie me-2"></i>@Model.SalesPersonId</span>
+                        </div>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-sm me-2">Edit</a>
+                            <a asp-action="Index" class="btn btn-primary btn-sm px-4">Back to Report</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,187 @@
+﻿@model Inventory_SalesManagement.Models.Entities.SalesOrder
+
+@{
+    ViewData["Title"] = "New Sales Order";
+    // Serialize the product list to JSON so JavaScript can access it
+    var productsJson = System.Text.Json.JsonSerializer.Serialize(ViewBag.ProductList);
+}
+
+<div class="container d-flex justify-content-center" style="min-height: 80vh;">
+    <div class="col-lg-10">
+        <div class="card shadow-lg border-0 mt-5">
+            <div class="card-header bg-white border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="fw-bold text-primary mb-0">New Sale</h3>
+                    <p class="text-muted small">Add multiple products to this order</p>
+                </div>
+                <div class="text-end">
+                    <h5 class="fw-bold text-success mb-0" id="grandTotalDisplay">$0.00</h5>
+                    <small class="text-muted">Total Amount</small>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="mb-4 p-3 bg-light rounded border border-primary border-opacity-25">
+                    <label class="fw-bold text-primary mb-2"><i class="fa-solid fa-barcode me-2"></i>Scan Product Here</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" id="barcodeInput" class="form-control form-control-lg" placeholder="Scan barcode or type code and hit Enter..." autofocus />
+                    </div>
+                    <small class="text-muted">Cursor must be in this box to scan.</small>
+                </div>
+                <form asp-action="Create" id="salesForm">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="table-responsive mb-4">
+                        <table class="table table-modern align-middle" id="itemsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%">Product</th>
+                                    <th style="width: 20%">Price</th>
+                                    <th style="width: 20%">Quantity</th>
+                                    <th style="width: 15%">Subtotal</th>
+                                    <th style="width: 5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-primary" onclick="addItemRow()">
+                            <i class="fa-solid fa-plus me-2"></i>Add Product
+                        </button>
+
+                        <div>
+                            <a asp-action="Index" class="btn btn-light text-muted me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fa-solid fa-check me-2"></i>Confirm Sale
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 1. Get Product Data (Now includes Barcode)
+        var productData = @Html.Raw(productsJson);
+        var rowIndex = 0;
+
+        // --- BARCODE SCANNER LOGIC ---
+        document.getElementById('barcodeInput').addEventListener('keypress', function (e) {
+            // Scanners send an 'Enter' key at the end of the code
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Stop the form from submitting
+                var code = this.value.trim();
+
+                if(code) {
+                    findAndAddProduct(code);
+                }
+
+                // Clear and refocus for next scan
+                this.value = '';
+            }
+        });
+
+        function findAndAddProduct(barcode) {
+            // Find the product in our JSON list
+            var product = productData.find(p => p.Barcode === barcode);
+
+            if (product) {
+                // Check stock
+                if (product.StockQuantity < 1) {
+                    alert("Item Found: " + product.Name + "\nBUT it is Out of Stock!");
+                    return;
+                }
+
+                // Add the row and pre-fill it
+                addItemRow(product.Id);
+            } else {
+                alert("Product with barcode '" + barcode + "' not found.");
+            }
+        }
+        // -----------------------------
+
+        // Updated: addItemRow can now take an optional 'preSelectedId'
+        function addItemRow(preSelectedId = null) {
+            var tableBody = document.querySelector('#itemsTable tbody');
+            var tr = document.createElement('tr');
+
+            // Build Dropdown
+            var options = `<option value="">-- Select --</option>`;
+            productData.forEach(p => {
+                let disabled = p.StockQuantity < 1 ? 'disabled' : '';
+                let label = p.Name + ` ($${p.Price})` + (p.StockQuantity < 1 ? ' - Out of Stock' : '');
+
+                // If scanned, select this option automatically
+                let selected = (preSelectedId && p.Id == preSelectedId) ? 'selected' : '';
+
+                options += `<option value="${p.Id}" data-price="${p.Price}" ${disabled} ${selected}>${label}</option>`;
+            });
+
+            tr.innerHTML = `
+                <td>
+                    <select name="Items[${rowIndex}].ProductId" class="form-select product-select" onchange="updateRow(this)" required>
+                        ${options}
+                    </select>
+                </td>
+                <td><input type="text" class="form-control-plaintext price-display" value="$0.00" readonly /></td>
+                <td><input type="number" name="Items[${rowIndex}].Quantity" class="form-control qty-input" min="1" value="1" onchange="updateRow(this)" required /></td>
+                <td><span class="fw-bold subtotal-display">$0.00</span></td>
+                <td><button type="button" class="btn btn-sm text-danger" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+            `;
+
+            tableBody.appendChild(tr);
+
+            // If we auto-selected an item via scanner, trigger the price update immediately
+            if (preSelectedId) {
+                var newSelect = tr.querySelector('.product-select');
+                updateRow(newSelect);
+            }
+
+            rowIndex++;
+        }
+
+        // ... Keep your existing updateRow, calculateGrandTotal, removeRow functions ...
+        function updateRow(element) {
+            var row = element.closest('tr');
+            var select = row.querySelector('.product-select');
+            var qtyInput = row.querySelector('.qty-input');
+            var priceDisplay = row.querySelector('.price-display');
+            var subtotalDisplay = row.querySelector('.subtotal-display');
+
+            var price = 0;
+            if (select.selectedIndex > 0) {
+                price = parseFloat(select.options[select.selectedIndex].getAttribute('data-price'));
+            }
+
+            var qty = parseInt(qtyInput.value) || 0;
+            var subtotal = price * qty;
+
+            priceDisplay.value = "$" + price.toFixed(2);
+            subtotalDisplay.innerText = "$" + subtotal.toFixed(2);
+            calculateGrandTotal();
+        }
+
+        function calculateGrandTotal() {
+            var total = 0;
+            document.querySelectorAll('.product-select').forEach(select => {
+                var row = select.closest('tr');
+                var price = parseFloat(select.options[select.selectedIndex]?.getAttribute('data-price') || 0);
+                var qty = parseInt(row.querySelector('.qty-input').value) || 0;
+                total += price * qty;
+            });
+            document.getElementById('grandTotalDisplay').innerText = "$" + total.toFixed(2);
+        }
+
+        function removeRow(btn) {
+            btn.closest('tr').remove();
+            calculateGrandTotal();
+        }
+    </script>
+}
