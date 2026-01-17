@@ -46,6 +46,7 @@ namespace Inventory_SalesManagement.Controllers
         }
 
         // GET: Products/Create
+           
         public IActionResult Create()
         {
             // The arguments are: (Source List, "Value Field", "Text Field")

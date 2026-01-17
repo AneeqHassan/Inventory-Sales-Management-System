@@ -14,19 +14,25 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        // 1. Fetch raw data needed
+        // --- 1. SECURITY CHECK (Add this block) ---
+        // If the user is not signed in, kick them to the Login page immediately.
+        if (!User.Identity.IsAuthenticated)
+        {
+            return RedirectToAction("Login", "Auth");
+        }
+
+        // --- 2. DASHBOARD LOGIC (Keep existing code) ---
         var products = await _context.Products.ToListAsync();
         var sales = await _context.SalesOrderManagements.Include(s => s.Product).ToListAsync();
 
-        // 2. Calculate Summary Metrics
         var model = new DashboardViewModel
         {
             TotalProducts = products.Count,
             LowStockCount = products.Count(p => p.StockQuantity < 5),
-            TotalOrders = sales.Select(s => s.OrderNumber).Distinct().Count(), // Count unique invoices
+            TotalOrders = sales.Select(s => s.OrderNumber).Distinct().Count(),
             TotalRevenue = sales.Sum(s => s.TotalAmount),
 
-            // 3. Low Stock List (Top 5 items running low)
+            // Low Stock List
             LowStockProducts = products
                 .Where(p => p.StockQuantity < 5)
                 .OrderBy(p => p.StockQuantity)
@@ -34,8 +40,7 @@ public class HomeController : Controller
                 .ToList()
         };
 
-        // 4. PREPARE DOUGHNUT CHART (Top 5 Selling Products by Qty)
-        // Group sales by Product Name -> Sum the Quantity
+        // Prepare Charts
         var topProducts = sales
             .GroupBy(s => s.Product?.Name ?? "Unknown")
             .Select(g => new { Name = g.Key, Qty = g.Sum(x => x.Quantity) })
@@ -46,18 +51,17 @@ public class HomeController : Controller
         model.ProductLabels = topProducts.Select(x => x.Name).ToList();
         model.ProductData = topProducts.Select(x => x.Qty).ToList();
 
-        // 5. PREPARE LINE CHART (Revenue per Order - Last 10 Orders)
-        // Group by OrderNumber (Invoice) -> Sum the TotalAmount
         var recentOrders = sales
             .GroupBy(s => s.OrderNumber)
-            .Select(g => new {
+            .Select(g => new
+            {
                 Invoice = g.Key,
                 Total = g.Sum(x => x.TotalAmount),
                 Date = g.First().OrderDate
             })
-            .OrderByDescending(x => x.Date) // Newest first
+            .OrderByDescending(x => x.Date)
             .Take(10)
-            .OrderBy(x => x.Date) // Re-sort for the chart (Oldest -> Newest left to right)
+            .OrderBy(x => x.Date)
             .ToList();
 
         model.OrderLabels = recentOrders.Select(x => x.Invoice).ToList();

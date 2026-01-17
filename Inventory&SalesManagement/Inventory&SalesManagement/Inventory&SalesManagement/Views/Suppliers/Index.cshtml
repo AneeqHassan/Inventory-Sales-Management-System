@@ -12,9 +12,13 @@
                     <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-truck me-2 text-primary"></i>Supplier Directory</h5>
                     <small class="text-muted">Manage vendor contact details</small>
                 </div>
-                <a asp-action="Create" class="btn btn-primary btn-sm shadow-sm">
-                    <i class="fa-solid fa-plus me-2"></i>New Supplier
-                </a>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Create" class="btn btn-primary btn-sm shadow-sm">
+                        <i class="fa-solid fa-plus me-2"></i>New Supplier
+                    </a>
+                }
             </div>
 
             <div class="table-responsive">
@@ -38,15 +42,23 @@
                                 <td class="text-truncate" style="max-width: 200px;">@item.Address</td>
 
                                 <td class="text-end">
-                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary border-0">
-                                        <i class="fa-solid fa-pen-to-square text-primary"></i>
-                                    </a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary border-0">
+                                            <i class="fa-solid fa-pen-to-square text-primary"></i>
+                                        </a>
+                                    }
+
                                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary border-0">
                                         <i class="fa-solid fa-circle-info text-info"></i>
                                     </a>
-                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary border-0">
-                                        <i class="fa-solid fa-trash text-danger"></i>
-                                    </a>
+
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary border-0">
+                                            <i class="fa-solid fa-trash text-danger"></i>
+                                        </a>
+                                    }
                                 </td>
                             </tr>
                         }
