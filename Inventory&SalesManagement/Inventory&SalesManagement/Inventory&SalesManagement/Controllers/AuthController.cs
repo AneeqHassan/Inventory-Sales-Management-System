@@ -45,17 +45,20 @@ namespace Inventory_SalesManagement.Controllers
                         Secure = true, // Set to false if testing without HTTPS
                         SameSite = SameSiteMode.Strict
                     });
+                    TempData["Success"] = $"Welcome back, {userInDb.Username}!";
                     return RedirectToAction("Index", "Home");
                 }
             }
 
             ViewBag.ErrorMessage = "Invalid Username or Password";
+            TempData["Error"] = "Invalid username or password.";
             return View();
         }
 
         public IActionResult Logout()
         {
             Response.Cookies.Delete("jwt_token");
+            TempData["Info"] = "You have been logged out.";
             return RedirectToAction("Login");
         }
 

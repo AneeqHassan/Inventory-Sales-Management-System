@@ -1,6 +1,6 @@
 ﻿namespace Inventory_SalesManagement.Models
 {
-    public class DashboardViewModel
+    public class Dashboard
     {
         // Summary Cards
         public decimal TotalRevenue { get; set; }

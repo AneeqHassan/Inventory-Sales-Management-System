@@ -80,10 +80,12 @@ namespace Inventory_SalesManagement.Controllers
 
                 _context.Add(product);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Product added successfully!";
                 return RedirectToAction(nameof(Index));
             }
 
             // 4. If we failed, reload the dropdown so it's not empty
+            TempData["Error"] = "Failed to add product.";
             ViewData["SupplierId"] = new SelectList(_context.Suppliers, "Id", "Name", product.SupplierId);
 
             return View(product);
@@ -124,6 +126,7 @@ namespace Inventory_SalesManagement.Controllers
                 {
                     _context.Update(product);
                     await _context.SaveChangesAsync();
+                    TempData["Success"] = "Product updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -138,6 +141,7 @@ namespace Inventory_SalesManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            TempData["Error"] = "Failed to update product.";
             ViewData["SupplierId"] = new SelectList(_context.Suppliers, "Id", "Name", product.SupplierId);
             return View(product);
         }
@@ -170,6 +174,11 @@ namespace Inventory_SalesManagement.Controllers
             if (product != null)
             {
                 _context.Products.Remove(product);
+                TempData["Success"] = "Product deleted successfully!";
+            }
+            else
+            {
+                TempData["Error"] = "Error: Product not found."; 
             }
 
             await _context.SaveChangesAsync();

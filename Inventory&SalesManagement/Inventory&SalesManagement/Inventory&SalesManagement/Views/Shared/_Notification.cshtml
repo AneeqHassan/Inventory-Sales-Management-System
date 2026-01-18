@@ -1,0 +1,44 @@
+﻿<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script type="text/javascript">
+    // Configure Toastr Options (Optional: makes it look nicer)
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "3000"
+    };
+</script>
+
+@if (TempData["Success"] != null)
+{
+    <script type="text/javascript">
+        // Show Green Success Toast
+        toastr.success('@TempData["Success"]');
+    </script>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script type="text/javascript">
+        // Show Big Red Error Popup
+        Swal.fire({
+            icon: 'error',
+            title: 'Action Failed',
+            text: '@TempData["Error"]',
+            confirmButtonColor: '#d33'
+        });
+    </script>
+}
+
+@if (TempData["Warning"] != null)
+{
+    <script type="text/javascript">
+        toastr.warning('@TempData["Warning"]');
+    </script>
+}

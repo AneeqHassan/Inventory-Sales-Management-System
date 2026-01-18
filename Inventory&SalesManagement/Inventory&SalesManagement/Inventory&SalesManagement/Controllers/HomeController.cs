@@ -25,7 +25,7 @@ public class HomeController : Controller
         var products = await _context.Products.ToListAsync();
         var sales = await _context.SalesOrderManagements.Include(s => s.Product).ToListAsync();
 
-        var model = new DashboardViewModel
+        var model = new Dashboard
         {
             TotalProducts = products.Count,
             LowStockCount = products.Count(p => p.StockQuantity < 5),

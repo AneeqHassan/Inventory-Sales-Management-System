@@ -91,7 +91,7 @@ namespace Inventory_SalesManagement.Controllers
 
             // 4. Save All at once
             await _context.SaveChangesAsync();
-
+            TempData["Success"] = "Sale completed successfully!";
             return RedirectToAction(nameof(Index));
         }
 

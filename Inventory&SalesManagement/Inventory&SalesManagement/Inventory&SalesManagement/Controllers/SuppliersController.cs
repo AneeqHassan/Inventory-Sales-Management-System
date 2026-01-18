@@ -60,8 +60,10 @@ namespace Inventory_SalesManagement.Controllers
             {
                 _context.Add(supplier);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "New supplier registered!";
                 return RedirectToAction(nameof(Index));
             }
+            TempData["Error"] = "Failed to register supplier.";
             return View(supplier);
         }
 
@@ -99,6 +101,7 @@ namespace Inventory_SalesManagement.Controllers
                 {
                     _context.Update(supplier);
                     await _context.SaveChangesAsync();
+                    TempData["Success"] = "Supplier details updated!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -113,6 +116,7 @@ namespace Inventory_SalesManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            TempData["Error"] = "Update failed. Check inputs.";
             return View(supplier);
         }
 
@@ -143,6 +147,7 @@ namespace Inventory_SalesManagement.Controllers
             if (supplier != null)
             {
                 _context.Suppliers.Remove(supplier);
+                TempData["Success"] = "Supplier removed successfully.";
             }
 
             await _context.SaveChangesAsync();

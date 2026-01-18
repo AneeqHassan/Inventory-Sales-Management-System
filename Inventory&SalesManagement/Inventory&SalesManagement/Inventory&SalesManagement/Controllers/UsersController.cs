@@ -52,8 +52,10 @@ public class UsersController : Controller
             // For now, we save it as provided based on your model.
             _context.Add(user);
             await _context.SaveChangesAsync();
+            TempData["Success"] = $"User '{user.Username}' created successfully!";
             return RedirectToAction(nameof(Index));
         }
+        TempData["Error"] = "Failed to create user.";
         return View(user);
     }
 
@@ -112,8 +114,10 @@ public class UsersController : Controller
                 if (!_context.Users.Any(e => e.Id == id)) return NotFound();
                 else throw;
             }
+            TempData["Success"] = "User details updated!";
             return RedirectToAction(nameof(Index));
         }
+        TempData["Error"] = "Failed to update user.";
         return View(user);
     }
 
@@ -128,6 +132,7 @@ public class UsersController : Controller
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
         }
+        TempData["Success"] = "User deleted successfully.";
         return RedirectToAction(nameof(Index));
     }
 }
