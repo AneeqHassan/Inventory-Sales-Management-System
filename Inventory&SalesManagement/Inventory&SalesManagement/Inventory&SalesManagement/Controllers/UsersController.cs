@@ -50,6 +50,7 @@ public class UsersController : Controller
 
             // NOTE: In a real production app, you should HASH the password here.
             // For now, we save it as provided based on your model.
+            user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(user.HashedPassword);
             _context.Add(user);
             await _context.SaveChangesAsync();
             TempData["Success"] = $"User '{user.Username}' created successfully!";
@@ -127,12 +128,35 @@ public class UsersController : Controller
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var user = await _context.Users.FindAsync(id);
-        if (user != null)
+
+        if (user == null)
         {
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            TempData["Error"] = "User not found.";
+            return RedirectToAction(nameof(Index));
         }
-        TempData["Success"] = "User deleted successfully.";
+
+        // --- SAFETY CHECK 1: PREVENT DELETING SUPER ADMIN ---
+        // Change "SuperAdmin" to match exactly whatever username you created for the boss
+        if (user.Username.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase) ||
+            user.Username.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+        {
+            TempData["Error"] = "CRITICAL: The Super Admin account cannot be deleted.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // --- SAFETY CHECK 2: PREVENT DELETING YOURSELF ---
+        // If the username of the row we are trying to delete matches the currently logged-in user
+        if (User.Identity.Name == user.Username)
+        {
+            TempData["Error"] = "Action Denied: You cannot delete your own account while logged in.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // If checks pass, proceed with delete
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = $"User '{user.Username}' was deleted successfully.";
         return RedirectToAction(nameof(Index));
     }
 }
